@@ -1,0 +1,118 @@
+<html>
+<title>Auto MC-Number Lookup Tool</title>
+
+<style>
+  input[type="submit"] {
+    background-color: #4caf50;
+    font-size: 15px;
+    border: 2px solid black;
+    color: white;
+    padding: 16px 32px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  body {
+    background-color: #90EE90;
+    border: none;
+    color: black;
+    height: auto;
+    width: auto;
+    overflow: hidden;
+  }
+
+  div {
+    width: 100%;
+  }
+
+  button {
+    background-color: #4caf50;
+    font-size: 15px;
+    border: 2px solid black;
+    color: white;
+    padding: 4px 8px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+  img {
+    max-width:8%;
+    height:auto;
+}
+
+  textarea {
+    size: border-box;
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    resize: none;
+    background-color: white;
+    width: 550px;
+    height: 300px;
+    border: 7px solid black;
+  }
+</style>
+
+<body>
+  <div>
+    <center>
+      <h1>Automatic MC Number Lookup</h1>
+
+      <form>
+        <textarea id="mcNumbers" name="mcNumberName">Enter up to 100 MC-Numbers separated by commas...</textarea>
+        <br>
+        <input type="submit" role="button" aria-label="Find Clients" value="Find Clients">
+      </form>
+
+      <div id="loading">
+      </div>
+      <div id="saved">
+      </div>
+      <h5>Created by: Jack Kelly</h5>
+    </center>
+    <script>
+
+    var currentNum;
+    var totalNum;
+    var savedNum;
+      const electron = require('electron');
+      const {ipcRenderer} = electron;
+      document.querySelector('form').addEventListener('submit', submitForm);
+
+      function submitForm(e) {
+        e.preventDefault();
+        var mcNumbers = document.querySelector('#mcNumbers').value;
+        ipcRenderer.send('mcNumber:add', mcNumbers);
+      }
+
+      ipcRenderer.on('progress:current', function(e, current, total){
+      currentNum = (current + 1);
+      totalNum = total;
+      var loadingSection = document.querySelector('#loading');
+      loadingSection.innerHTML = "<image src=\"./images/loading.gif\"><h3>Checking.... (" + currentNum + " / " + totalNum + ")</h3>";
+      });
+
+      ipcRenderer.on('progress:saved', function(e, saved, total){
+      savedNum = (saved + 1);
+      totalNum = total;
+      var savedSection = document.querySelector('#saved');
+      savedSection.innerHTML = "<h3>Saved Results: (" + savedNum + "/" + totalNum + ")</h3>";
+      });
+
+      ipcRenderer.on('complete:success', function(e){
+        var loadingSection = document.querySelector('#loading');
+        loadingSection.innerHTML = "<image src=\"./images/complete.png\"><h3>Lookup Complete!</h3><h4>Saved " + savedNum + " of " + totalNum +"</h4><button onclick=\"showResults()\">View Results</button>";
+        var savedSection = document.querySelector('#saved');
+        savedSection.innerHTML = "";
+      });
+
+      function showResults(){
+        ipcRenderer.send('show:results');
+      }
+
+    </script>
+  </div>
+</body>
+
+</html>
