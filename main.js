@@ -43,7 +43,7 @@ const http = require('http');
 
 const timeout = millis => new Promise(resolve => setTimeout(resolve, millis));
 
-const apiKey = '0ab0f6015e19120626afa0df8c20345f'; // API key of 2captcha account
+const apiKey = 'xxxxxxxxxxxxxxxxxxxxxx'; // API key of 2captcha account
 
 var snapshotValid = false;
 var fileName = "";
